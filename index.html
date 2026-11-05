@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>The Arch of Titus</title>
+  <meta name="description" content="An interactive 3D study of the Arch of Titus in Rome: how it shows the Roman defeat of Judaea in 70 CE, and how Jews answered it.">
+  <link rel="stylesheet" href="fonts/cinzel.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="bar" id="bar">
+    <a class="brand" href="#model">Arch of Titus</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#model">Model</a>
+      <a href="#war">The war</a>
+      <a href="#inscription">Inscription</a>
+      <a href="#city">Victory city</a>
+      <a href="#spoils">The spoils</a>
+      <a href="#afterlife">Afterlife</a>
+      <a href="#choice">Under or around</a>
+      <a href="#sources">Sources</a>
+    </nav>
+  </header>
+
+  <section class="stage" id="model" aria-label="3D model of the Arch of Titus">
+    <div id="viewer" class="viewer"></div>
+    <div id="hot" class="hot-layer"></div>
+
+    <div class="intro" id="intro">
+      <h1>The Arch of Titus</h1>
+      <p>A Roman monument to the fall of Jerusalem in 70 CE, and what Jews made of it.</p>
+      <div class="intro-actions">
+        <button class="btn primary" id="begin" type="button">Begin the tour</button>
+        <button class="btn" id="walkIntro" type="button">Walk the triumph route</button>
+      </div>
+      <p class="intro-hint">Drag to turn the arch. Pinch, or click the scene and scroll, to zoom. Select a gold point to read it.</p>
+    </div>
+
+    <aside class="panel" id="panel" aria-live="polite" aria-hidden="true">
+      <div class="panel-head">
+        <div>
+          <p class="panel-place" id="pPlace"></p>
+          <h2 class="panel-title" id="pTitle"></h2>
+        </div>
+        <button class="icon-btn" id="pClose" type="button" aria-label="Close">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="lens" role="tablist" aria-label="Reading">
+        <button role="tab" class="lens-btn" data-lens="rome" aria-selected="true">Rome's message</button>
+        <button role="tab" class="lens-btn" data-lens="memory" aria-selected="false">Jewish memory</button>
+        <span class="lens-thumb" aria-hidden="true"></span>
+      </div>
+      <div class="panel-body" id="pBody">
+        <p class="see" id="pSee"></p>
+        <div class="reading" id="pReading"></div>
+      </div>
+      <div class="panel-foot">
+        <button class="btn small" id="pPrev" type="button">Previous</button>
+        <span class="count" id="pCount"></span>
+        <button class="btn small" id="pNext" type="button">Next</button>
+      </div>
+    </aside>
+
+    <div class="caption" id="caption" aria-live="polite"></div>
+
+    <div class="toolbar" id="toolbar" role="toolbar" aria-label="Model controls">
+      <div class="tgroup">
+        <button class="icon-btn" id="tHome" type="button" aria-label="Overview" title="Overview">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 9.5L10 4l7 5.5M5.5 8v8h9V8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="icon-btn" id="tOut" type="button" aria-label="Zoom out" title="Zoom out">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 10h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+        <button class="icon-btn" id="tIn" type="button" aria-label="Zoom in" title="Zoom in">
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 10h10M10 5v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="tgroup">
+        <label class="switch"><input type="checkbox" id="tPaint"><span class="track"><span class="knob"></span></span><span>Menorah paint</span></label>
+        <label class="switch"><input type="checkbox" id="tRestore"><span class="track"><span class="knob"></span></span><span>Restoration</span></label>
+      </div>
+      <div class="tgroup light">
+        <span class="tlabel" id="tTimeLabel">Morning</span>
+        <input type="range" id="tTime" min="0" max="1000" value="360" aria-label="Time of day">
+      </div>
+      <div class="tgroup">
+        <button class="btn small" id="tWalkA" type="button">Walk the triumph route</button>
+        <button class="btn small" id="tWalkB" type="button">Walk back (1948)</button>
+      </div>
+      <div class="tgroup guide-wrap">
+        <button class="btn small" id="tGuide" type="button" aria-expanded="false" aria-controls="guide">Guide</button>
+        <div class="guide" id="guide" hidden></div>
+      </div>
+    </div>
+
+    <div class="hint" id="hint">Click the scene first, or hold Command or Control, to zoom with the scroll wheel.</div>
+
+    <div class="loader" id="loader">
+      <p class="loader-title">The Arch of Titus</p>
+      <div class="loader-bar"><span id="loadBar"></span></div>
+      <p class="loader-step" id="loadStep">Preparing the stone</p>
+    </div>
+  </section>
+
+  <main>
+    <section class="section" id="war">
+      <p class="kicker">The context</p>
+      <h2>From Jerusalem to Rome</h2>
+      <div class="cols">
+        <div class="prose">
+          <p>In 66 CE the province of Judaea rose against Rome. Nero sent the general Vespasian to crush the revolt. In 69 CE Vespasian left the war to fight for the throne in a Roman civil war, and he won it. His son Titus took over the siege of Jerusalem. In the summer of 70 CE the Romans broke into the city and the Temple burned. Jewish tradition dates the destruction to the ninth of Av, the same date that it gives for the fall of the First Temple.</p>
+          <p>In 71 CE Vespasian and Titus held a joint triumph in Rome. The historian Josephus watched it. He describes soldiers, captives, moving stages that showed scenes of the war, and the treasures of the Temple. Ten years later Titus was dead, and his brother Domitian raised this arch for him on the Via Sacra.</p>
+          <p>The arch shows a defeat from the side of the winner. This site reads it in two ways. The first reading asks how Rome turned the fall of Jerusalem into images of power. The second asks how Jews answered those images across two thousand years. Historians call the second kind of question reception: the study of how later people make their own meaning from a work.</p>
+        </div>
+        <dl class="facts">
+          <div><dt>Built</dt><dd>soon after 81 CE, under Domitian</dd></div>
+          <div><dt>Height</dt><dd>about 15.4 m</dd></div>
+          <div><dt>Width</dt><dd>about 13.5 m</dd></div>
+          <div><dt>Passage</dt><dd>about 5.4 m wide, 8.3 m high</dd></div>
+          <div><dt>Stone</dt><dd>marble at the core, travertine in the restored outer parts</dd></div>
+          <div><dt>Place</dt><dd>the Velia, at the high point of the Via Sacra</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" id="inscription">
+      <p class="kicker">Interactive</p>
+      <h2>Reading the dedication</h2>
+      <p class="lede">Select a word to translate it. Latin capitals use V for both U and V. The dots are word dividers.</p>
+      <div class="stone" id="stone" role="group" aria-label="The inscription"></div>
+      <div class="word-card" id="wordCard" aria-live="polite">
+        <p class="wc-latin" id="wcLatin">SENATVS POPVLVSQVE ROMANVS DIVO TITO DIVI VESPASIANI F VESPASIANO AVGVSTO</p>
+        <p class="wc-trans" id="wcTrans">"The Senate and the Roman People, to the deified Titus Vespasian Augustus, son of the deified Vespasian."</p>
+        <p class="wc-note" id="wcNote">The text never names Judaea, Jerusalem or the war.</p>
+      </div>
+      <div class="compare">
+        <button class="btn" id="compareBtn" type="button" aria-expanded="false" aria-controls="compareText">Compare the lost arch in the Circus Maximus</button>
+        <div class="compare-text" id="compareText" hidden>
+          <p>A second arch for Titus stood at the east end of the Circus Maximus. It is lost, but a copy of its text, made in the Middle Ages, survives. That text honors Titus because, under the direction of his father, he conquered the Jewish people and destroyed Jerusalem, a city that every general, king and people before him had either attacked without success or never tried to attack.</p>
+          <p>The boast is false. Pompey captured Jerusalem in 63 BCE, and Nebuchadnezzar of Babylon destroyed it in 586 BCE. The arch on the Via Sacra keeps silent about the war in words and lets its reliefs speak.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="city">
+      <p class="kicker">Interactive</p>
+      <h2>A victory city</h2>
+      <p class="lede">The arch was one part of a city that the Flavian emperors filled with the Jewish war. Select a place on the plan. The plan is a schematic and is not to scale.</p>
+      <div class="city">
+        <svg id="citySvg" viewBox="0 0 1000 640" role="img" aria-label="Schematic plan of Flavian Rome"></svg>
+        <div class="city-card" id="cityCard" aria-live="polite">
+          <h3 id="ccName">Arch of Titus</h3>
+          <p id="ccText"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="spoils">
+      <p class="kicker">Interactive</p>
+      <h2>Where did the menorah go?</h2>
+      <p class="lede">Follow the Temple treasures through the ancient sources. Positions follow longitude and latitude; the chart shows no coastlines.</p>
+      <div class="route">
+        <svg id="routeSvg" viewBox="0 0 1000 520" role="img" aria-label="Route of the Temple treasures"></svg>
+        <div class="route-card">
+          <p class="rc-year" id="rcYear"></p>
+          <h3 id="rcName"></h3>
+          <p id="rcText"></p>
+          <div class="route-nav">
+            <button class="btn small" id="rcPrev" type="button">Previous</button>
+            <span class="count" id="rcCount"></span>
+            <button class="btn small" id="rcNext" type="button">Next</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">After the account of Procopius, no source traces the objects. Popular stories place the menorah in the Vatican, but no evidence supports them.</p>
+    </section>
+
+    <section class="section" id="afterlife">
+      <p class="kicker">Interactive</p>
+      <h2>Two thousand years of the arch</h2>
+      <p class="lede">Filter the events, then scroll sideways. Some events link to a place on the model.</p>
+      <div class="filters" id="filters" role="group" aria-label="Filter events"></div>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section class="section" id="choice">
+      <p class="kicker">Interactive</p>
+      <h2>Under or around?</h2>
+      <p class="lede">Visitors to the Forum can still walk through the passage or step around the arch. Choose a path.</p>
+      <div class="choice">
+        <button class="choice-btn" data-choice="through" type="button">
+          <span class="cb-title">Walk through</span>
+          <span class="cb-sub">Take the road of the triumph</span>
+        </button>
+        <button class="choice-btn" data-choice="around" type="button">
+          <span class="cb-title">Walk around</span>
+          <span class="cb-sub">Keep the old custom</span>
+        </button>
+      </div>
+      <div class="choice-out" id="choiceOut" aria-live="polite" hidden>
+        <div data-for="through">
+          <p>To walk through is to take the road of the triumph and to pass beneath the deified Titus in the vault. Most visitors do it without a thought. For the Jews of Rome it meant to join the procession that carried the menorah away, and for that reason the custom said: go around.</p>
+        </div>
+        <div data-for="around">
+          <p>To walk around is to refuse the triumph. The custom treats the arch as a place of mourning. It keeps the loss of the Temple in the body of every person who takes the longer path.</p>
+        </div>
+        <p>In 1948, accounts tell, Roman Jews answered the arch in a new way. After the State of Israel was declared, they walked through it from west to east, against the route of the triumph.</p>
+        <button class="btn primary" id="choiceWalk" type="button">Take the 1948 walk in the model</button>
+      </div>
+    </section>
+
+    <section class="section" id="sources">
+      <p class="kicker">Reference</p>
+      <h2>Sources and method</h2>
+      <div class="cols">
+        <div class="prose">
+          <h3>Ancient sources</h3>
+          <ul class="refs">
+            <li>Josephus. <cite>The Jewish War</cite>, Book 7. The triumph of 71 CE, the spoils and the Temple of Peace.</li>
+            <li>The Babylonian Talmud, tractate Gittin 56b. The legend of Titus and the gnat.</li>
+            <li>Procopius. <cite>History of the Wars</cite>, the books on the Vandalic War. The treasures in Carthage, Constantinople and Jerusalem.</li>
+            <li>The dedication of the Arch of Titus, and the text of the lost arch in the Circus Maximus.</li>
+          </ul>
+          <h3>Modern studies</h3>
+          <ul class="refs">
+            <li>Alföldy, Géza. "Eine Bauinschrift aus dem Colosseum." <cite>Zeitschrift für Papyrologie und Epigraphik</cite>, vol. 109, 1995.</li>
+            <li>Beard, Mary. <cite>The Roman Triumph</cite>. Harvard University Press, 2007.</li>
+            <li>Fine, Steven. <cite>The Menorah: From the Bible to Modern Israel</cite>. Harvard University Press, 2016.</li>
+            <li>Pfanner, Michael. <cite>Der Titusbogen</cite>. Philipp von Zabern, 1983.</li>
+          </ul>
+        </div>
+        <div class="prose">
+          <h3>About the model</h3>
+          <p>The 3D model is built in code with three.js. Its proportions follow the published measurements of the arch. The architecture, the Composite capitals and the coffered vault follow the real design.</p>
+          <p>The reliefs are simplified carvings. They follow the composition of the originals, but they are not exact copies, and the faces and details are generic. The ochre paint on the menorah follows the 2012 scan. The line between ancient marble and restored travertine is approximate.</p>
+          <p>The setting is a sketch. The Colosseum, the bell tower of Santa Francesca Romana and the Basilica of Maxentius stand in their rough directions at reduced detail.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>The Arch of Titus: a humanities project in history, art history and Jewish studies.</p>
+  </footer>
+
+  <script src="vendor/three.min.js"></script>
+  <script src="js/noise.js"></script>
+  <script src="js/textures.js"></script>
+  <script src="js/relief.js"></script>
+  <script src="js/panels.js"></script>
+  <script src="js/arch.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/content.js"></script>
+  <script src="js/viewer.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/page.js"></script>
+</body>
+</html>
